@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 
 function App() {
-  const [message, setMessage] = useState("Loading...");
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5001/")
-      .then((response) => {
-        console.log("Response status:", response.status);
-        return response.text();
-      })
+    fetch("http://localhost:5001/api/events")
+      .then((response) => response.json())
       .then((data) => {
-        console.log("Backend response:", data);
-        setMessage(data);
+        setEvents(data);
       })
       .catch((error) => {
-        console.error("Fetch error:", error);
-        setMessage("Could not connect to backend");
+        console.error("Error fetching events:", error);
       });
   }, []);
 
   return (
     <div>
       <h1>Campus Hub</h1>
-      <p>{message}</p>
+
+      <h2>Upcoming Events</h2>
+
+      {events.map((event) => (
+        <div key={event.id}>
+          <h3>{event.title}</h3>
+          <p>{event.description}</p>
+          <p>{event.location}</p>
+        </div>
+      ))}
     </div>
   );
 }
