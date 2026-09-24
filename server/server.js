@@ -27,7 +27,15 @@ app.get("/api/events", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch events" });
     }
 });
-
+app.get("/api/announcements", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM announcements");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ error: "Failed to fetch announcements" });
+    }
+});
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
