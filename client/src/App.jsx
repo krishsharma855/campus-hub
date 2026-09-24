@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import EventCard from "./components/EventCard";
 
 function App() {
   const [events, setEvents] = useState([]);
@@ -21,11 +22,7 @@ function App() {
       <h2>Upcoming Events</h2>
 
       {events.map((event) => (
-        <div key={event.id}>
-          <h3>{event.title}</h3>
-          <p>{event.description}</p>
-          <p>{event.location}</p>
-        </div>
+        <EventCard key={event.id} event={event} />
       ))}
     </div>
   );
