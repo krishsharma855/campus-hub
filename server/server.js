@@ -1,3 +1,25 @@
+const express = require("express");
+const cors = require("cors");
+const pool = require("./db");
+
+const app = express();
+
+const PORT = 5001;
+
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+    res.send("Campus Hub Backend is running 🚀");
+});
+
+app.get("/api/health", (req, res) => {
+    res.json({
+        status: "ok",
+        message: "Campus Hub API is running"
+    });
+});
+
 app.get("/api/events", async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM events");
@@ -44,6 +66,16 @@ app.get("/api/clubs", async (req, res) => {
     }
 });
 
+app.get("/api/announcements", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM announcements");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({ error: "Failed to fetch announcements" });
+    }
+});
+
 app.get("/api/events/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -66,4 +98,8 @@ app.get("/api/events/:id", async (req, res) => {
             error: "Failed to fetch event"
         });
     }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
