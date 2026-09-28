@@ -1,11 +1,23 @@
 import { useEffect, useState } from "react";
 import EventCard from "./components/EventCard";
 import AnnouncementCard from "./components/AnnouncementCard";
+import ClubCard from "./components/ClubCard";
 
 function App() {
+  const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
 
+  useEffect(() => {
+  fetch("http://localhost:5001/api/clubs")
+    .then((response) => response.json())
+    .then((data) => {
+      setClubs(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching clubs:", error);
+    });
+}, []);
   useEffect(() => {
     fetch("http://localhost:5001/api/events")
       .then((response) => response.json())
@@ -50,6 +62,16 @@ function App() {
           />
         ))
       )}
+
+      <h2>Clubs</h2>
+
+      {clubs.length === 0 ? (
+        <p>No clubs available.</p>
+      ) : (
+        clubs.map((club) => (
+        <ClubCard key={club.id} club={club} />
+        ))
+    )}
     </div>
   );
 }
