@@ -46,9 +46,13 @@ function App() {
 
       <h2>Upcoming Events</h2>
 
-      {events.map((event) => (
+      {events.length === 0 ? (
+        <p>No upcoming events available.</p>
+      ) : (
+        events.map((event) => (
         <EventCard key={event.id} event={event} />
-      ))}
+  ))
+)}
 
       <h2>Announcements</h2>
 
