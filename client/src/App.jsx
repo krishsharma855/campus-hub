@@ -18,16 +18,20 @@ function App() {
       console.error("Error fetching clubs:", error);
     });
 }, []);
-  useEffect(() => {
-    fetch("http://localhost:5001/api/events")
-      .then((response) => response.json())
-      .then((data) => {
-        setEvents(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching events:", error);
-      });
-  }, []);
+const fetchEvents = () => {
+  fetch("http://localhost:5001/api/events")
+    .then((response) => response.json())
+    .then((data) => {
+      setEvents(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching events:", error);
+    });
+};
+
+useEffect(() => {
+  fetchEvents();
+}, []);
 
   useEffect(() => {
     fetch("http://localhost:5001/api/announcements")
@@ -45,7 +49,7 @@ function App() {
       <h1>Campus Hub</h1>
 
       <h2>Upcoming Events</h2>
-
+      <button onClick={fetchEvents}>Refresh Events</button>
       {events.length === 0 ? (
         <p>No upcoming events available.</p>
       ) : (
