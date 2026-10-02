@@ -147,6 +147,60 @@ app.get("/api/events/:id", async (req, res) => {
         });
     }
 });
+
+app.post("/api/events/:id/register", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id } = req.body;
+
+        const eventResult = await pool.query(
+            "SELECT * FROM events WHERE id = $1",
+            [id]
+        );
+
+        if (eventResult.rows.length === 0) {
+            return res.status(404).json({
+                error: "Event not found"
+            });
+        }
+
+        const userResult = await pool.query(
+            "SELECT * FROM users WHERE id = $1",
+            [user_id]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({
+                error: "User not found"
+            });
+        }
+
+        try {
+            const registrationResult = await pool.query(
+                `INSERT INTO event_registrations (user_id, event_id)
+                 VALUES ($1, $2)
+                 RETURNING *`,
+                [user_id, id]
+            );
+
+            res.status(201).json(registrationResult.rows[0]);
+        } catch (error) {
+            if (error.code === "23505") {
+                return res.status(409).json({
+                    error: "User is already registered for this event"
+                });
+            }
+
+            throw error;
+        }
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to register for event"
+        });
+    }
+});
+
 app.delete("/api/events/:id", async (req, res) => {
     try {
         const { id } = req.params;
