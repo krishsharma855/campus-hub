@@ -54,6 +54,45 @@ app.get("/api/clubs/:id", async (req, res) => {
     }
 });
 
+app.put("/api/clubs/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description } = req.body;
+
+        if (!name || name.trim() === "") {
+            return res.status(400).json({
+                error: "Name is required"
+            });
+        }
+
+        const clubResult = await pool.query(
+            "SELECT * FROM clubs WHERE id = $1",
+            [id]
+        );
+
+        if (clubResult.rows.length === 0) {
+            return res.status(404).json({
+                error: "Club not found"
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE clubs
+             SET name = $1, description = $2
+             WHERE id = $3
+             RETURNING *`,
+            [name, description, id]
+        );
+
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error("Database error:", error);
+        res.status(500).json({
+            error: "Failed to update club"
+        });
+    }
+});
+
 app.post("/api/events", async (req, res) => {
     try {
         const { title, description, date, location, club_id } = req.body;
