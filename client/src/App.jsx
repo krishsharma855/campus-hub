@@ -6,6 +6,7 @@ import ClubCard from "./components/ClubCard";
 function App() {
   const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
+  const [showUpcomingOnly, setShowUpcomingOnly] = useState(true);
   const [announcements, setAnnouncements] = useState([]);
 
   useEffect(() => {
@@ -43,17 +44,23 @@ useEffect(() => {
         console.error("Error fetching announcements:", error);
       });
   }, []);
+  const filteredEvents = showUpcomingOnly
+  ? events.filter((event) => new Date(event.date) >= new Date())
+  : events;
 
   return (
     <div>
       <h1>Campus Hub</h1>
 
       <h2>Upcoming Events</h2>
-      <button onClick={fetchEvents}>Refresh Events</button>
-      {events.length === 0 ? (
+      <button onClick={fetchEvents}>Refresh Events</button>{" "}
+      <button onClick={() => setShowUpcomingOnly(!showUpcomingOnly)}>
+      {showUpcomingOnly ? "Show All Events" : "Show Upcoming Only"}
+      </button>
+      {filteredEvents.length === 0 ? (
         <p>No upcoming events available.</p>
       ) : (
-        events.map((event) => (
+        filteredEvents.map((event) => (
         <EventCard key={event.id} event={event} />
   ))
 )}
