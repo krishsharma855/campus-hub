@@ -10,6 +10,9 @@ function App() {
   const [announcements, setAnnouncements] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [eventDetailsError, setEventDetailsError] = useState("");
+  const [registrationMessage, setRegistrationMessage] = useState("");
+  const [registrationError, setRegistrationError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
   useEffect(() => {
   fetch("http://localhost:5001/api/clubs")
     .then((response) => response.json())
@@ -66,6 +69,39 @@ const handleViewDetails = async (eventId) => {
   }
 };
 
+const handleRegister = async () => {
+  setRegistrationMessage("");
+  setRegistrationError("");
+  setIsRegistering(true);
+
+  try {
+    const response = await fetch(
+      `http://localhost:5001/api/events/${selectedEvent.id}/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: 1 }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 201) {
+      setRegistrationMessage("Successfully registered for this event!");
+    } else if (response.status === 409) {
+      setRegistrationError("You are already registered for this event.");
+    } else {
+      setRegistrationError(data.error || "Registration failed. Please try again.");
+    }
+  } catch (error) {
+    setRegistrationError("Could not connect to the server. Please try again.");
+  } finally {
+    setIsRegistering(false);
+  }
+};
+
   const filteredEvents = showUpcomingOnly
   ? events.filter((event) => new Date(event.date) >= new Date())
   : events;
@@ -90,6 +126,14 @@ const handleViewDetails = async (eventId) => {
         day: "numeric"
       })}
     </p>
+
+    <button onClick={handleRegister} disabled={isRegistering}>
+      {isRegistering ? "Registering..." : "Register for Event"}
+      </button>
+
+      {registrationMessage && <p>{registrationMessage}</p>}
+      {registrationError && <p>{registrationError}</p>}
+
   </div>
 ) : (
   <>
